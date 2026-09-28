@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Uplift Insurance"
+description = "A polished consumer insurance shopping experience for comparing auto coverage, reviewing options, and completing a realistic mock bind flow."
+version = "1.0.0"
+id = "artifacts/uplift-insurance"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22094
+
+[services.development]
+run = "pnpm --filter @workspace/uplift-insurance run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/uplift-insurance", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/uplift-insurance/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22094"
+BASE_PATH = "/"
