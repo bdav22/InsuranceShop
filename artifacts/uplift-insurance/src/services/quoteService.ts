@@ -1,49 +1,37 @@
-export type Coverage = {
-  bodilyInjury: string;
-  propertyDamage: string;
-  comprehensive: string;
-  collision: string;
-  rental: boolean;
-  roadside: boolean;
-};
+export const insuranceProducts = ['auto', 'home', 'commercial'] as const;
 
-export type Quote = {
-  id: string;
-  carrier: string;
-  plan: string;
-  monthly: number;
-  sixMonth: number;
-  badge?: string;
-  badgeTone?: 'lime' | 'teal' | 'sand';
-  coverage: Coverage;
-};
+export type InsuranceProduct = (typeof insuranceProducts)[number];
 
-export const defaultCoverage: Coverage = {
-  bodilyInjury: '100/300',
-  propertyDamage: '100k',
-  comprehensive: '$500',
-  collision: '$500',
-  rental: true,
-  roadside: true,
-};
-
-export function getMockQuotes(coverage: Coverage = defaultCoverage): Quote[] {
-  const adjustment = coverage.bodilyInjury === '250/500' ? 18 : coverage.bodilyInjury === '50/100' ? -13 : 0;
-  const rentalAdjustment = coverage.rental ? 6 : 0;
-  const roadsideAdjustment = coverage.roadside ? 3 : 0;
-  const totalAdjustment = adjustment + rentalAdjustment + roadsideAdjustment;
-  const make = (quote: Omit<Quote, 'coverage' | 'monthly' | 'sixMonth'> & { base: number }): Quote => {
-    const monthly = quote.base + totalAdjustment;
-    return { ...quote, monthly, sixMonth: monthly * 6, coverage };
+export type QuoteLead = {
+  product: InsuranceProduct;
+  contact: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    zip: string;
   };
-  return [
-    make({ id: 'evergreen', carrier: 'Evergreen Insurance', plan: 'Essential Plus', base: 133, badge: 'Lowest price', badgeTone: 'lime' }),
-    make({ id: 'summit', carrier: 'Summit Insurance', plan: 'Steady Standard', base: 147, badge: 'Lower deductible', badgeTone: 'teal' }),
-    make({ id: 'harbor', carrier: 'Harbor Insurance', plan: 'Complete Road', base: 158, badge: 'Higher liability limits', badgeTone: 'sand' }),
-    make({ id: 'northstar', carrier: 'Northstar Insurance', plan: 'Everyday Choice', base: 164 }),
-  ];
-}
+  details: Record<string, string>;
+};
 
-export function formatMoney(value: number) {
-  return `$${value.toLocaleString('en-US')}`;
+export type QuoteResult = {
+  status: 'carrier-service-not-connected';
+  product: InsuranceProduct;
+  message: string;
+};
+
+/**
+ * Placeholder boundary for the future carrier quoting API.
+ *
+ * This deliberately does not calculate premiums, persist personal information,
+ * contact carriers, or create coverage. Replace this implementation with the
+ * secured quote-service integration once its API and credentials are available.
+ */
+export async function getQuote(applicationData: QuoteLead): Promise<QuoteResult> {
+  return {
+    status: 'carrier-service-not-connected',
+    product: applicationData.product,
+    message:
+      'This preview has not saved or sent your details. The carrier comparison service is not connected yet, so no rates are available. Leaving this page clears your answers.',
+  };
 }

@@ -1,0 +1,1 @@
+- [PolicyWell product direction](policywell-product-direction.md) — consumer insurance funnel for paid ads and organic search; carrier quoting/binding remains unconnected.
