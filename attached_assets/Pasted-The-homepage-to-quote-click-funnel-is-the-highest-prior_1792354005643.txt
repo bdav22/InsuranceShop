@@ -1,0 +1,443 @@
+The homepage-to-quote click funnel is the highest priority. Make it immediately obvious how visitors can start a quote.
+
+Make data entry extremely simple, with one clear question per screen, large selectable options, minimal typing, and sensible conditional logic.
+
+Include a persistent, animated completion bar throughout the questionnaire.
+
+Collect and persist customer leads in a real database, including incomplete applications.
+
+After the questionnaire, display realistic-looking SAMPLE insurance prices and comparison cards.
+
+Architect the pricing functionality so we can replace the mock pricing adapter with the official QuinStreet QRP integration later without rebuilding the customer-facing funnel.
+
+Do not implement actual carrier integrations yet. Do not represent sample prices as real insurance quotes.
+
+First inspect the current codebase and database configuration. Reuse the existing framework, design system, and database wherever practical. Do not rebuild unrelated parts of the website.
+
+PART 1 — HOMEPAGE CONVERSION FUNNEL
+
+The homepage is critical to conversion.
+
+Review the existing homepage and improve the quote-entry experience without changing the established Uplift branding.
+
+Make the primary CTA highly visible above the fold.
+
+Use an obvious action such as "Get My Quotes" or "Compare Rates."
+
+Ensure the CTA works on desktop and mobile.
+
+Link all relevant existing quote CTAs to the same funnel.
+
+Start with a ZIP code entry screen.
+
+Validate five-digit US ZIP codes.
+
+After the visitor enters a ZIP code and clicks Continue, immediately begin the questionnaire.
+
+Avoid forcing account creation or email entry before the questionnaire.
+
+Avoid unnecessary marketing pages or intermediate screens.
+
+Preserve campaign and UTM parameters through the funnel.
+
+The experience should feel like a natural extension of the existing homepage, not a separate application.
+
+PART 2 — QUESTIONNAIRE UX
+
+Create a sequential questionnaire with one primary question per screen wherever possible.
+
+Display:
+
+Uplift branding.
+
+A horizontal completion bar.
+
+Percentage complete.
+
+Current step or stage.
+
+One clear primary Continue button.
+
+A Back button.
+
+Appropriate loading and validation states.
+
+Use clickable answer cards, segmented controls, radio buttons, date pickers, and searchable dropdowns. Minimize typing.
+
+Save answers as the user progresses. Going backward must not erase previously entered answers.
+
+The completion bar must reflect completed, applicable questions. Update it when the customer adds vehicles or drivers or encounters conditional questions.
+
+Questionnaire sequence
+
+A. Initial questions
+
+ZIP code.
+
+Are you currently insured? Yes / No.
+
+When do you plan to purchase a new policy? Today / Within 7 days / Within 30 days / Later / Just comparing.
+
+Are you a homeowner? Yes / No.
+
+Would you like a home insurance quote? Yes / No.
+
+Explain that bundling may qualify the customer for savings, but never guarantee a discount.
+
+B. Vehicle information
+
+Ask how many cars they want to insure, then collect for each vehicle:
+
+Model year.
+
+Make.
+
+Model.
+
+Trim.
+
+Main use: Personal / Commuting / Business / Rideshare or delivery / Other.
+
+Average daily mileage.
+
+Ownership: Own outright / Financing / Leasing.
+
+Coverage preference: Full coverage / Liability-focused / Help me decide.
+
+Explain full coverage briefly, including collision, comprehensive, and deductibles.
+
+Support multiple vehicles, editing, and removal. Use dependent vehicle dropdowns where practical and provide "I don't know" fallbacks.
+
+C. Driver information
+
+For the primary driver, collect:
+
+Date of birth.
+
+Gender, only where appropriate for the applicable market and rating rules; include a "Prefer not to say" option.
+
+Active driver's license status.
+
+Age first licensed.
+
+Estimated credit score range, including "I don't know" and "Prefer not to say."
+
+Highest education level, only where relevant and legally permitted.
+
+Whether the applicant or an eligible family member served in the military.
+
+Potential discounts: employed, married, student, AAA membership, paperless billing, autopay, driver training, and willingness to participate in an eligible driving-data or telematics program.
+
+Allow multiple discount selections. Explain that selections are not confirmed discounts until eligibility is verified.
+
+D. Driving history
+
+If the applicant IS currently insured, ask:
+
+Number of speeding tickets in the last three years.
+
+Number of insurance claims in the last three years.
+
+DUI/DWI in the last three years.
+
+If the applicant is NOT currently insured, ask first:
+
+Why they do not currently have insurance.
+
+How long it has been since they were last insured.
+
+Then ask the same three driving-history questions.
+
+Use selectable answers, including "Not sure" where appropriate. Display only applicable questions.
+
+E. Overnight parking
+
+Ask where the vehicle is usually parked overnight:
+
+Private garage.
+
+Private driveway.
+
+Carport.
+
+Street.
+
+Apartment or condominium parking lot.
+
+Covered public garage.
+
+Other.
+
+Include an expandable "Why do we ask?" explanation stating that parking location may affect theft and damage risk assessments and that the impact varies by insurer.
+
+F. Additional drivers and contact information
+
+Collect:
+
+First name.
+
+Last name.
+
+Whether the customer wants to add another driver.
+
+Relevant information for each additional driver, including date of birth, license status, relationship, and driving history.
+
+Email address.
+
+Phone number.
+
+Make adding another driver optional, with an obvious "Add another driver" action.
+
+Explain that the email is used to send the customer's quote information. Provide appropriate privacy and contact consent language. Keep marketing consent separate and optional.
+
+Do not request SSN, full driver's license numbers, or payment card details in the demo.
+
+G. Review
+
+Show a concise summary of the customer's answers, vehicles, drivers, and coverage preferences.
+
+Let the customer edit individual sections without restarting the funnel.
+
+When all required questions are complete, show 100% progress and a CTA such as "See My Quote Options."
+
+PART 3 — DATABASE AND LEAD TRACKING
+
+Use the existing database if configured. Otherwise, use Supabase PostgreSQL or another suitable persistent database compatible with the existing stack.
+
+Create persistent records for:
+
+Leads.
+
+Vehicles associated with each lead.
+
+Drivers associated with each lead.
+
+Lead activity events.
+
+Capture:
+
+Unique lead ID and anonymous session ID.
+
+Creation and last-activity timestamps.
+
+Current step and progress percentage.
+
+Lead status: Started, In Progress, Completed, Contacted, Quoted, Converted, or Abandoned.
+
+Answers collected so far.
+
+Vehicle and driver records.
+
+Contact details once provided.
+
+Home quote interest.
+
+Campaign, UTM parameters, and landing-page attribution.
+
+Mock quote request ID and quote results when generated.
+
+Funnel completion timestamp.
+
+Save progress after each step. Retain partial leads even if the user never submits the final form.
+
+Allow returning visitors to resume an authorized saved session where supported.
+
+Implement server-side validation, database access controls, and appropriate retention policies. Never expose database service-role credentials in the browser.
+
+Do not store unnecessary sensitive information. Do not put personal data in analytics event metadata.
+
+PART 4 — MOCK QUOTE ENGINE WITH A FUTURE QRP ADAPTER
+
+Implement a modular pricing interface.
+
+Create a clearly separated abstraction similar to:
+
+QuoteProvider interface.
+
+MockQuoteProvider implementation.
+
+Future QuinStreetQRPProvider implementation.
+
+Use the existing language and architecture. Do not invent QRP API endpoints or payload formats.
+
+The questionnaire must not directly contain pricing logic. It should submit a normalized quote request to the provider abstraction.
+
+For now:
+
+The mock provider returns deterministic, illustrative results based on the submitted answers.
+
+Use fictional insurance companies or clearly labeled sample carriers.
+
+Never suggest Progressive, GEICO, Direct Auto, or another real insurer actually supplied a price.
+
+Store generated mock results and associate them with the lead.
+
+Allow the mock provider to be disabled through configuration when the real integration is introduced.
+
+Keep the result schema flexible enough to map real carrier names, premiums, coverage, deductibles, eligibility, and purchase URLs from QRP later.
+
+Add a clear disclaimer that these are illustrative demonstration estimates, not actual insurance quotes or guaranteed premiums.
+
+PART 5 — RESULTS PAGE INSPIRED BY THE SCREENSHOT
+
+After submission, show a results page inspired by the uploaded Insurify screenshot while preserving Uplift's branding.
+
+The page should have a heading such as "Top options for you."
+
+At the top, display:
+
+Selected coverage summary with an Edit action.
+
+A payment display selector, such as "Due today," "Monthly," or "Six-month premium," where the mock data supports those values.
+
+A clear disclaimer that all prices are illustrative.
+
+Create vertically stacked comparison cards with:
+
+Fictional carrier name and logo placeholder.
+
+Sample premium.
+
+Payment frequency.
+
+A "View" button.
+
+Overall coverage summary.
+
+Expandable "Details" section.
+
+Bodily injury liability limits.
+
+Property damage liability limits.
+
+Comprehensive coverage.
+
+Collision coverage.
+
+Deductible.
+
+Policy term.
+
+Additional relevant coverage where applicable.
+
+Use realistic-looking formatting, whitespace, rounded corners, subtle shadows, and readable typography.
+
+Each card should have a consistent structure, with the price and primary CTA prominently displayed. Cards should be responsive and easy to scan.
+
+Include:
+
+A sort control for lowest illustrative price.
+
+A coverage edit action.
+
+An expandable details section for each result.
+
+An optional side-by-side comparison.
+
+A way to return to the questionnaire without losing answers.
+
+A "Continue" action for each option.
+
+Include an optional rate-monitoring banner only if its functionality is implemented honestly. Do not claim to monitor real rates or send alerts unless that capability actually exists.
+
+Do not fabricate customer reviews, carrier ratings, real carrier offers, or discounts.
+
+PART 6 — SELECTED OPTION AND SIMULATED HANDOFF
+
+When the customer clicks "View" or selects a result:
+
+Open a detailed coverage summary.
+
+Show the selected sample premium and payment assumptions.
+
+Allow the customer to return to the comparison results.
+
+Provide a clearly labeled prototype continuation step.
+
+Do not collect real payment details, issue a policy, claim the customer is insured, or represent the selection as an actual binding transaction.
+
+Keep this transition modular so the future QRP/carrier workflow can replace the mock continuation.
+
+PART 7 — ADMIN DASHBOARD
+
+Create a protected /admin/leads dashboard.
+
+Administrators should be able to:
+
+View all leads, including incomplete ones.
+
+Search by name, email, and phone.
+
+Filter by date, status, campaign, purchase timeframe, and progress.
+
+Open a lead and inspect its answers, vehicles, drivers, and timeline.
+
+See where the applicant stopped.
+
+Review generated mock results.
+
+Update lead status and add internal follow-up notes.
+
+Export authorized lead data to CSV.
+
+View aggregate funnel conversion and abandonment metrics.
+
+Require real authentication and authorization. Do not hardcode admin credentials or expose private customer information publicly.
+
+PART 8 — FUTURE QUINNSTREET QRP INTEGRATION
+
+We intend to connect the application to QuinStreet QRP for actual comparative rating and quote-to-bind.
+
+Prepare the architecture now, but do not pretend the integration is live.
+
+When official documentation and credentials become available:
+
+Map the Uplift questionnaire fields to the documented QRP schema.
+
+Handle missing fields and carrier-specific follow-up questions.
+
+Route sensitive underwriting data through the approved secure QRP/carrier workflow.
+
+Preserve lead attribution and session continuity where supported.
+
+Replace the mock provider with the actual provider implementation.
+
+Display real results only after confirmed responses from the integrated service.
+
+Handle errors, ineligible applicants, and unavailable carriers gracefully.
+
+Do not assume every carrier accepts identical fields or that QRP automatically collects SSN and driver's license data in every integration mode.
+
+PART 9 — TESTING AND DEFINITION OF DONE
+
+Test the complete journey:
+
+Homepage CTA opens the ZIP code entry.
+
+Applicant completes the questionnaire.
+
+Progress updates correctly.
+
+Answers persist when navigating backward.
+
+Multiple vehicles and drivers work.
+
+Conditional insurance-history questions work.
+
+Partial leads are saved.
+
+Completed leads are saved with attribution.
+
+Mock results appear with the correct disclaimer.
+
+Payment-frequency controls update displayed sample amounts correctly.
+
+Results expand to show coverage details.
+
+Selecting an option opens the simulated continuation.
+
+Admins can find and inspect the lead.
+
+Unauthorized visitors cannot access other leads or the admin dashboard.
+
+The flow works on mobile and desktop.
